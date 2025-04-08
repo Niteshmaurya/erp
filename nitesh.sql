@@ -22,7 +22,7 @@ CREATE TABLE admin (
 -- Students Table
 CREATE TABLE students (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT UNIQUE,
+    user_id INT UNIQUE, 
     name VARCHAR(255) NOT NULL,
     roll_no VARCHAR(50) UNIQUE NOT NULL,
     branch VARCHAR(50) NOT NULL,

@@ -44,10 +44,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 </head>
 <body>
     <div class="container mt-5">
-        <h2>Welcome, <?php echo $_SESSION['user_name']; ?> (Admin)</h2>
-        <a href="logout.php" class="btn btn-danger">Logout</a>
+        <h2>Welcome, <?php echo $_SESSION['name']; ?> (Admin)</h2>
+        <a href="login.php" class="btn btn-danger">Logout</a>
         
         <h3 class="mt-4">Add Subject</h3>
+        
         <?php echo $message; ?>
         <form method="POST">
             <div class="mb-3">

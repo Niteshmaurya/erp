@@ -2,7 +2,7 @@
 $host = "localhost";
 $user = "root";
 $pass = "";
-$dbname = "nitesh";
+$dbname = "test";
 
 $conn = new mysqli($host, $user, $pass, $dbname);
 

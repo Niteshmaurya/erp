@@ -10,7 +10,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $password = trim($_POST['password']);
 
     // Query to check email in 'users' table
-    $sql = "SELECT id, password, role FROM users WHERE email = ?";
+    $sql = "SELECT id, password, role, name FROM users WHERE email = ?";
     $stmt = $conn->prepare($sql);
 
     if (!$stmt) {
@@ -22,22 +22,26 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $stmt->store_result();
 
     if ($stmt->num_rows > 0) {
-        $stmt->bind_result($id, $hashed_password, $role);
+        $stmt->bind_result($id, $hashed_password, $role, $name);
         $stmt->fetch();
 
         // Verify password
         if (password_verify($password, $hashed_password)) {
             $_SESSION['user_id'] = $id;
             $_SESSION['user_role'] = $role;
+            $_SESSION['name'] = $name; // Store user's name in the session
 
             // Redirect based on role
             switch ($role) {
-                case 'exam_cell':
-                    header("Location: exam_cell_dashboard.php");
+                case 'faculty':
+                    header("Location: faculty_dashboard.php");
                     break;
                 case 'student':
                     header("Location: student_dashboard.php");
                     break;
+                    case 'exam_cell':
+                        header("Location: exam_cell.php");
+                        break;    
                 default:
                     header("Location: admin_dashboard.php");
             }
@@ -53,7 +57,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $conn->close();
 }
 ?>
-
 
 <!DOCTYPE html>
 <html lang="en">

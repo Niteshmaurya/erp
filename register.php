@@ -1,4 +1,7 @@
 <?php
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
 include 'db.php';
 
 $message = "";
@@ -9,15 +12,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $password = password_hash($_POST['password'], PASSWORD_BCRYPT);
     $role = $_POST['role'];
 
-    // Insert into users table
-    $sql = "INSERT INTO users (email, password, role) VALUES (?, ?, ?)";
+    // Insert into users table (now includes name)
+    $sql = "INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, ?)";
     $stmt = $conn->prepare($sql);
 
     if (!$stmt) {
         die("Error preparing statement: " . $conn->error);
     }
 
-    $stmt->bind_param("sss", $email, $password, $role);
+    $stmt->bind_param("ssss", $name, $email, $password, $role);
 
     if ($stmt->execute()) {
         $user_id = $stmt->insert_id; // Get last inserted user ID
@@ -35,6 +38,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $sql = "INSERT INTO students (user_id, name, roll_no, branch) VALUES (?, ?, ?, ?)";
             $stmt = $conn->prepare($sql);
             $stmt->bind_param("isss", $user_id, $name, $roll_no, $branch);
+        } elseif ($role == "faculty") {
+            $mobile_no = $_POST['mobile_no'];
+            $sql = "INSERT INTO faculty (user_id, name, mobile_no) VALUES (?, ?, ?)";
+            $stmt = $conn->prepare($sql);
+            $stmt->bind_param("iss", $user_id, $name, $mobile_no);
         } elseif ($role == "exam_cell") {
             $mobile_no = $_POST['mobile_no'];
             $sql = "INSERT INTO exam_cell (user_id, name, mobile_no) VALUES (?, ?, ?)";
@@ -61,20 +69,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <script>
-        function toggleFields() {
-            let role = document.getElementById("role").value;
-            document.getElementById("admin_fields").style.display = (role === "admin") ? "block" : "none";
-            document.getElementById("student_fields").style.display = (role === "student") ? "block" : "none";
-            document.getElementById("exam_cell_fields").style.display = (role === "exam_cell") ? "block" : "none";
-        }
-    </script>
+   <!-- Update the JavaScript toggle function -->
+<script>
+function toggleFields() {
+    let role = document.getElementById("role").value;
+    document.getElementById("admin_fields").style.display = (role === "admin") ? "block" : "none";
+    document.getElementById("student_fields").style.display = (role === "student") ? "block" : "none";
+    document.getElementById("faculty_fields").style.display = (role === "faculty") ? "block" : "none";
+    document.getElementById("exam_cell_fields").style.display = (role === "exam_cell") ? "block" : "none";
+}
+</script>
 </head>
 <body class="bg-light">
-
 <div class="container mt-5">
     <div class="row justify-content-center">
         <div class="col-md-6">
@@ -99,9 +107,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         <select name="role" id="role" class="form-control" required onchange="toggleFields()">
                             <option value="admin">Admin</option>
                             <option value="student">Student</option>
+                            <option value="faculty">Faculty</option>
                             <option value="exam_cell">Exam Cell</option>
                         </select>
                     </div>
+
+                    <!-- Add exam cell fields section (similar to faculty) -->
+<div id="exam_cell_fields" style="display: none;">
+    <div class="mb-3">
+        <label class="form-label">Mobile Number</label>
+        <input type="text" name="mobile_no" class="form-control">
+    </div>
+</div>
 
                     <!-- Admin Fields -->
                     <div id="admin_fields" style="display: block;">
@@ -133,7 +150,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         </div>
                     </div>
 
-                    <!-- Exam Cell Fields -->
+                    <!-- Faculty Cell Fields -->
                     <div id="exam_cell_fields" style="display: none;">
                         <div class="mb-3">
                             <label class="form-label">Mobile Number</label>
@@ -148,6 +165,5 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         </div>
     </div>
 </div>
-
 </body>
 </html>
